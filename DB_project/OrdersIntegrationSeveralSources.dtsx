@@ -12,8 +12,8 @@
   DTS:LocaleID="1033"
   DTS:ObjectName="OrdersIntegrationSeveralSources"
   DTS:PackageType="5"
-  DTS:VersionBuild="75"
-  DTS:VersionGUID="{250A4D17-B28C-476C-BC01-C9B953F67E53}">
+  DTS:VersionBuild="86"
+  DTS:VersionGUID="{0D37F5C1-7F7B-4C01-9E96-2708D3609075}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -268,7 +268,7 @@
       DTS:DTSID="{377FB48C-BF85-4B45-976F-6816B74303C6}"
       DTS:IncludeInDebugDump="6789"
       DTS:Namespace="User"
-      DTS:ObjectName="isOrdersFailed">
+      DTS:ObjectName="isOrderFailed">
       <DTS:VariableValue
         DTS:DataType="11">0</DTS:VariableValue>
     </DTS:Variable>
@@ -3399,7 +3399,6 @@ public class ScriptMain : UserComponent
     public override void PostExecute()
     {
         base.PostExecute();
-        Variables.isOrdersFailed = true;
     }
 
     /// <summary>
@@ -3415,6 +3414,14 @@ public class ScriptMain : UserComponent
     public override void Input0_ProcessInputRow(Input0Buffer Row)
     {
         Row.ErrorDescription = this.ComponentMetaData.GetErrorDescription(Row.ErrorCode);
+        VariableDispenser variableDispenser = (VariableDispenser)this.VariableDispenser;
+        variableDispenser.LockForWrite("User::isOrderFailed");
+        IDTSVariables100 vars;
+        variableDispenser.GetVariables(out vars);
+
+        vars["User::isOrderFailed"].Value = true;
+
+        vars.Unlock();
     }
 
 }
@@ -3581,18 +3588,6 @@ public class Variables
         ParentComponent = Component;
     }
 
-    public Boolean isOrdersFailed
-    {
-        get
-        {
-            return (Boolean)(ParentComponent.ReadWriteVariables["isOrdersFailed"].GetValueWithContext(ScriptComponent.EvaluatorContext));
-        }
-        set
-        {
-            ParentComponent.ReadWriteVariables["isOrdersFailed"].Value = value;
-        }
-    }
-
 }
 ]]></arrayElement>
                         <arrayElement
@@ -3680,7 +3675,7 @@ public class Input0Buffer: ScriptBuffer
     <msb:CodeName>SC_54a3805fed694db28226dc12ffaa52cc</msb:CodeName>
     <msb:Language>msBuild</msb:Language>
     <msb:DisplayName>SC_54a3805fed694db28226dc12ffaa52cc</msb:DisplayName>
-    <msb:ProjectId>{BD9D34CE-4005-4E0C-B4B5-BCC59DC3C78D}</msb:ProjectId>
+    <msb:ProjectId>{03ECB979-2105-4269-BBBC-81C35000E178}</msb:ProjectId>
   </msb:PropertyGroup>
   <msb:ItemGroup>
     <msb:Project Include="SC_54a3805fed694db28226dc12ffaa52cc.csproj" />
@@ -3826,106 +3821,106 @@ namespace SC_54a3805fed694db28226dc12ffaa52cc.Properties {
                         <arrayElement
                           dataType="System.String"><![CDATA[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
-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
+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
-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
+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
-AAAAIAAACAAAAAAAAAAAAAAACCAAAEgAAAAAAAAAAAAAAC50ZXh0AAAArBQAAAAgAAAAFgAAAAIA
+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
-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
-AIYYuwUGAAIAjSAAAAAAhhi7BSUAAgCYIAAAAACGCOYAvAAFAK0gAAAAAIYIwQNHAAUAtiAAAAAA
-hgiIBBAABQDAIAAAAACGCNYDwAAGANcgAAAAAIYA3wdHAAcA3yAAAAAAhgDsBkcABwDnIAAAAACG
-GLsFBgAHAAchAAAAAMYAdwfFAAcALCEAAAAAxgFwB7YACwA/IQAAAADGAcgHtgAMAEEhAAAAAIYY
-uwXPAA0AUCEAAAAAhhi7Bc8ADgBfIQAAAACGCLAARwAPAIUhAAAAAIYIwwDAAA8ApyEAAAAAgxi7
-BQYAEACvIQAAAACTCFYF1QAQANshAAAAAJMISAHaABAA4iEAAAAAkwhUAd8AEADqIQAAAACWCPgG
-5QARAPEhAAAAAIYYuwUGABEA+SEAAAAAkRjBBeoAEQAAAAEA4wcAAAEATwUAAAIApAYAAAMA3AQA
-AAEAXAMAAAEAXAMAAAEAiQAAAAIAGAEAAAMATwUAAAQA3AQAAAEATwUAAAEA4wcAAAEAKAcAAAEA
-KAcAAAEAXAMAAAEAXAMJALsFAQARALsFBgAZALsFCgApALsFEAAxALsFEAA5ALsFEABBALsFEABJ
-ALsFEABRALsFEABZALsFEABhALsFEABpALsFBgCZALsFBgC5ALsFFQDJALsFBgCJADsDBgCJAEYD
-BgCJAJEAGwDRAJ0EIABxALsFJQBxAE8FLwBxAKQGMwB5AFMANwBxAOsDPABxAAMEQQBxAPIDAQDZ
-ALsFEABxAN8HRwBxAOwGRwCJALsFBgDhANIGSwCJALgGUgCRALsFBgCJAI0GWADxAPoDXQCJALMH
-YwD5AIQHaQD5AFIDcAAZAQYBdQAZAecHfgChALsFhADBALsFBgAuAAsACQEuABMAEgEuABsAMQEu
-ACMAOgEuACsAYwEuADMAYwEuADsAYwEuAEMAOgEuAEsAaQEuAFMAYwEuAFsAgAFDAGMAygHJAHMA
-MQHhAHsAygHjAGsAygHpAHMAMQEDAAEABgAFAAcABgAIAAgAAADqAO4AAADFA/IAAACgBPYAAADa
-A/IAAADHAPIAAABaBfoAAABoAf8AAAD8BgQBAgAGAAMAAgAHAAUAAQAIAAcAAQAJAAkAAgASAAsA
-AQATAAsAAgAVAA0AAgAWAA8AAQAXAA8AAgAYABEABIAAAAEAAAAAAAAAAAAAAAAAZQAAAAQAAAAA
-AAAAAAAAAIwApwAAAAAAEAAAAAAAAAAAAAAAlQAyBwAAAAAQAAAAAAAAAAAAAACVAE8HAAAAAAQA
-AAAAAAAAAAAAAIwADAQAAAAAEAAAAAAAAAAAAAAAlQAJBQAAAAAQAAAAAAAAAAAAAACVAOYEAAAA
-AAAAAAABAAAADAYAAAAAAAAASURUU0NvbXBvbmVudE1ldGFEYXRhMTAwAElEVFNWYXJpYWJsZTEw
-MABJRFRTVmFyaWFibGVzMTAwAElEVFNFdmFsdWF0b3JDb250ZXh0MTAwAEdldEludDMyADxNb2R1
-bGU+AFNDX0UyMzM1NzdGQTUwNzREM0RBN0RCNzhDRDE1NUMxRjZCAElucHV0SUQAZ2V0X0NvbXBv
-bmVudE1ldGFEYXRhAG1zY29ybGliAGdldF9pc09yZGVyc0ZhaWxlZABzZXRfaXNPcmRlcnNGYWls
-ZWQAZGVmYXVsdEluc3RhbmNlAGdldF9FcnJvckNvZGUAUnVudGltZVR5cGVIYW5kbGUAR2V0VHlw
-ZUZyb21IYW5kbGUASW5wdXROYW1lAE1pY3Jvc29mdC5TcWxTZXJ2ZXIuRHRzLlBpcGVsaW5lAFR5
-cGUAZ2V0X0N1bHR1cmUAc2V0X0N1bHR1cmUAcmVzb3VyY2VDdWx0dXJlAEFwcGxpY2F0aW9uU2V0
-dGluZ3NCYXNlAEVkaXRvckJyb3dzYWJsZVN0YXRlAENvbXBpbGVyR2VuZXJhdGVkQXR0cmlidXRl
-AERlYnVnZ2VyTm9uVXNlckNvZGVBdHRyaWJ1dGUARGVidWdnYWJsZUF0dHJpYnV0ZQBFZGl0b3JC
-cm93c2FibGVBdHRyaWJ1dGUAQXNzZW1ibHlUaXRsZUF0dHJpYnV0ZQBBc3NlbWJseVRyYWRlbWFy
-a0F0dHJpYnV0ZQBUYXJnZXRGcmFtZXdvcmtBdHRyaWJ1dGUAQXNzZW1ibHlDb25maWd1cmF0aW9u
-QXR0cmlidXRlAEFzc2VtYmx5RGVzY3JpcHRpb25BdHRyaWJ1dGUAQ29tcGlsYXRpb25SZWxheGF0
-aW9uc0F0dHJpYnV0ZQBBc3NlbWJseVByb2R1Y3RBdHRyaWJ1dGUAQXNzZW1ibHlDb3B5cmlnaHRB
-dHRyaWJ1dGUAU1NJU1NjcmlwdENvbXBvbmVudEVudHJ5UG9pbnRBdHRyaWJ1dGUAQXNzZW1ibHlD
-b21wYW55QXR0cmlidXRlAFJ1bnRpbWVDb21wYXRpYmlsaXR5QXR0cmlidXRlAFByZUV4ZWN1dGUA
-UG9zdEV4ZWN1dGUAc2V0X1ZhbHVlAHZhbHVlAFN5c3RlbS5SdW50aW1lLlZlcnNpb25pbmcAU3Ry
-aW5nAFN5c3RlbS5Db21wb25lbnRNb2RlbABTQ19FMjMzNTc3RkE1MDc0RDNEQTdEQjc4Q0QxNTVD
-MUY2Qi5kbGwAZ2V0X0Vycm9yQ29kZV9Jc051bGwAc2V0X0Vycm9yRGVzY3JpcHRpb25fSXNOdWxs
-AFNldE51bGwAZ2V0X0l0ZW0Ac2V0X0l0ZW0AU3lzdGVtAHJlc291cmNlTWFuAEJvb2xlYW4AU2Ny
-aXB0TWFpbgBTeXN0ZW0uQ29uZmlndXJhdGlvbgBTeXN0ZW0uR2xvYmFsaXphdGlvbgBTeXN0ZW0u
-UmVmbGVjdGlvbgBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uAHNldF9FcnJvckRlc2NyaXB0aW9u
-AEdldEVycm9yRGVzY3JpcHRpb24AU3RyaW5nQ29tcGFyaXNvbgBDdWx0dXJlSW5mbwBPdXRwdXRO
-YW1lTWFwAE91dHB1dE1hcABNaWNyb3NvZnQuU3FsU2VydmVyLkRUU1J1bnRpbWVXcmFwAE1pY3Jv
-c29mdC5TcWxTZXJ2ZXIuRFRTUGlwZWxpbmVXcmFwAElucHV0MEJ1ZmZlcgBQaXBlbGluZUJ1ZmZl
-cgBTY3JpcHRCdWZmZXIAZ2V0X1Jlc291cmNlTWFuYWdlcgBNaWNyb3NvZnQuU3FsU2VydmVyLkR0
-cy5SdW50aW1lLldyYXBwZXIATWljcm9zb2Z0LlNxbFNlcnZlci5EdHMuUGlwZWxpbmUuV3JhcHBl
-cgAuY3RvcgAuY2N0b3IAU3lzdGVtLkRpYWdub3N0aWNzAFN5c3RlbS5SdW50aW1lLkNvbXBpbGVy
-U2VydmljZXMAU3lzdGVtLlJlc291cmNlcwBTQ181NGEzODA1ZmVkNjk0ZGIyODIyNmRjMTJmZmFh
-NTJjYy5Qcm9wZXJ0aWVzLlJlc291cmNlcy5yZXNvdXJjZXMARGVidWdnaW5nTW9kZXMAU0NfNTRh
-MzgwNWZlZDY5NGRiMjgyMjZkYzEyZmZhYTUyY2MuUHJvcGVydGllcwBnZXRfUmVhZFdyaXRlVmFy
-aWFibGVzAEJ1ZmZlckNvbHVtbkluZGV4ZXMAR2V0Q29sdW1uSW5kZXhlcwBTZXR0aW5ncwBFcXVh
-bHMAQ29ubmVjdGlvbnMAT2JqZWN0AEVuZE9mUm93c2V0AGdldF9EZWZhdWx0AFVzZXJDb21wb25l
-bnQAUGFyZW50Q29tcG9uZW50AFNjcmlwdENvbXBvbmVudABNaWNyb3NvZnQuU3FsU2VydmVyLlR4
-U2NyaXB0AE1pY3Jvc29mdC5TcWxTZXJ2ZXIuUGlwZWxpbmVIb3N0AElucHV0MF9Qcm9jZXNzSW5w
-dXQAR2V0VmFsdWVXaXRoQ29udGV4dABTY3JpcHRDb21wb25lbnRFdmFsQ29udGV4dABnZXRfRXZh
-bHVhdG9yQ29udGV4dABJbnB1dDBfUHJvY2Vzc0lucHV0Um93AE5leHRSb3cAZ2V0X0Fzc2VtYmx5
-AACAm0kAcwBOAHUAbABsACAAcAByAG8AcABlAHIAdAB5ACAAYwBhAG4AbgBvAHQAIABiAGUAIABz
-AGUAdAAgAHQAbwAgAEYAYQBsAHMAZQAuACAAQQBzAHMAaQBnAG4AIABhACAAdgBhAGwAdQBlACAA
-dABvACAAdABoAGUAIABjAG8AbAB1AG0AbgAgAGkAbgBzAHQAZQBhAGQALgAAD0kAbgBwAHUAdAAg
-ADAAAB1pAHMATwByAGQAZQByAHMARgBhAGkAbABlAGQAAHFTAEMAXwA1ADQAYQAzADgAMAA1AGYA
-ZQBkADYAOQA0AGQAYgAyADgAMgAyADYAZABjADEAMgBmAGYAYQBhADUAMgBjAGMALgBQAHIAbwBw
-AGUAcgB0AGkAZQBzAC4AUgBlAHMAbwB1AHIAYwBlAHMAAAAATAROkb/JY0qmE6rMnK8zWgAEIAEB
-CAMgAAEFIAEBEREEIAEBDgUgAQERWQQgABJpBCABDggJIAMBEj0dCBJBAwYSPQMGHQgEIAEICAQg
-AQIIBSACAQgcAyAAAgYgAgIOEXUFIAEdCAgEIAASeQUgARJ9HAUAABKAgQYgARwSgIUEIAEBHAgA
-ARKAjRGAkQUgABKAlQcgAgEOEoCVCLd6XFYZNOCJCImEXc2AgMyRAwYSFAMGEhgDBhJFAwYSUQMG
-ElUDBhIgBSABARIMAyAACAQgAQECCSAEAQgOEj0SQQUgAQESRQQAABJRBAAAElUFAAEBElUEAAAS
-IAMAAAEDKAAIAygAAgMoAA4ECAASUQQIABJVBAgAEiAIAQAIAAAAAAAeAQABAFQCFldyYXBOb25F
-eGNlcHRpb25UaHJvd3MBCAEAAgAAAAAAKAEAI1NDXzU0YTM4MDVmZWQ2OTRkYjI4MjI2ZGMxMmZm
-YWE1MmNjAAAFAQAAAAAWAQARQ29weXJpZ2h0IEAgIDIwMjMAAEkBABouTkVURnJhbWV3b3JrLFZl
-cnNpb249djQuNwEAVA4URnJhbWV3b3JrRGlzcGxheU5hbWUSLk5FVCBGcmFtZXdvcmsgNC43BAEA
-AAAAtAAAAM7K774BAAAAkQAAAGxTeXN0ZW0uUmVzb3VyY2VzLlJlc291cmNlUmVhZGVyLCBtc2Nv
-cmxpYiwgVmVyc2lvbj00LjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3
-N2E1YzU2MTkzNGUwODkjU3lzdGVtLlJlc291cmNlcy5SdW50aW1lUmVzb3VyY2VTZXQCAAAAAAAA
-AAAAAABQQURQQURQtAAAAHw0AAAAAAAAAAAAAJY0AAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAACI
-NAAAAAAAAAAAAAAAAF9Db3JEbGxNYWluAG1zY29yZWUuZGxsAAAAAAD/JQAgABAAAAAAAAAAAAAA
+LnJlbG9jAAAMAAAAAGAAAAACAAAAHgAAAAAAAAAAAAAAAAAAQAAAQgAAAAAAAAAAAAAAAAAAAAAM
+NAAAAAAAAEgAAAACAAUA+CEAACgRAAABAAAAAAAAACAzAAC4AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4CKBAAAAoqHgIoEQAACioTMAMAUQAAAAEAABEDAigSAAAK
+A28GAAAGbxMAAApvCAAABgIoFAAACnQdAAABJXIBAABwbxUAAAoSAG8WAAAKBnIBAABwbxcAAAoX
+jB8AAAFvGAAACgZvGQAACioeAigMAAAGKioCAwQFKBoAAAoqUgJ7GwAACgJ7HAAAChaUbx0AAAoq
+IgIWKB4AAAoqJgIXAygfAAAKKloDLAgCFyggAAAKKnIpAABwcyEAAAp6HgIoIgAACioeAigjAAAK
+Kn4CKCQAAAoCAnMQAAAGfQEAAAQCAnMRAAAGfQIAAAQqkgRyxgAAcBpvJQAACiwVAgUCAygmAAAK
+DgRzBQAABm8OAAAGKkorBwIDbw8AAAYDbwoAAAYt8SoGKjoCKCcAAAoCA30DAAAEKjoCKCcAAAoC
+A30EAAAEKh4CKCcAAAoqrn4FAAAELR5y1gAAcNAHAAACKCgAAApvKQAACnMqAAAKgAUAAAR+BQAA
+BCoafgYAAAQqHgKABgAABCoafgcAAAQqHgIoKwAACioucxcAAAaABwAABCoAAABCU0pCAQABAAAA
+AAAMAAAAdjQuMC4zMDMxOQAAAAAFAGwAAADoBQAAI34AAFQGAACsBwAAI1N0cmluZ3MAAAAAAA4A
+AEgBAAAjVVMASA8AABAAAAAjR1VJRAAAAFgPAADQAQAAI0Jsb2IAAAAAAAAAAgAAAVcVogEJAQAA
+APoBMwAWAAABAAAAJQAAAAgAAAAHAAAAGAAAAA8AAAArAAAAEAAAAAEAAAADAAAABwAAAAgAAAAB
+AAAABgAAAAEAAAAAAIgDAQAAAAAABgBxAuAFBgAFA+AFBgC9Ac0FDwBUBgAABgDqAUsEBgBUAksE
+BgA1AksEBgDsAksEBgCRAksEBgCqAksEBgABAksEBgAcAkoDCgDFAv0ADgBDAFkFCgA4Bf0AEgAp
+Bf0ACgC9BP0ACgAdB/0ABgDgBvsDBgCgAc0FBgBJBQAGBgCxBDYEFgBjAXIDFgDRAXIDFgBLASEE
+BgCFAeAFGgABAIEFDgAqAFkFDgCuBVkFDgAaAFkFBgAOBPsDBgBdBPsDBgBkA/sDBgCgBPsDBgAe
+AfsDBgDPAPsDBgCiB0sEAAAAAF0AAAAAAAEAAQABABAAFgQAABAAAQABAAEAEAAcBQAAPQABAAUA
+AQAQAP8GAABJAAEADAABABAA1AYAAE0AAwAQAAEAEACVBgAATQAEABEAAAAQAAcGYwZNAAUAEgAA
+ARAAxAZjBmUABwAWAAYA1AaeAAYAlQaiAAEADQemAAEADQemABEAAgSqABEAOwGuABEAsQCyAFAg
+AAAAAMYAIwMGAAEAWCAAAAAAxgAuAwYAAQBgIAAAAADGAH8HtgABAL0gAAAAAIYYwAUGAAIAxSAA
+AAAAhhjABUEAAgDQIAAAAACGCMEAvAAFAOUgAAAAAIYIsANjAAUA7iAAAAAAhgh3BBAABQD4IAAA
+AACGCMUDwAAGAA8hAAAAAIYAlgdjAAcAFyEAAAAAhgDnBmMABwAfIQAAAACGGMAFBgAHAD8hAAAA
+AMYAcgfFAAcAZCEAAAAAxgFrB7YACwB3IQAAAADGAX8HtgAMAHkhAAAAAIYYwAXPAA0AiCEAAAAA
+hhjABc8ADgCXIQAAAACDGMAFBgAPAJ8hAAAAAJMIRQXVAA8AyyEAAAAAkwgjAdoADwDSIQAAAACT
+CC8B3wAPANohAAAAAJYI8wblABAA4SEAAAAAhhjABQYAEADpIQAAAACRGMYF6gAQAAAAAQCaBwAA
+AQA+BQAAAgCfBgAAAwDLBAAAAQBEAwAAAQBEAwAAAQCKAAAAAgDzAAAAAwA+BQAABADLBAAAAQA+
+BQAAAQCaBwAAAQAjBwAAAQAjBwAAAQBEAwkAwAUBABEAwAUGABkAwAUKACkAwAUQADEAwAUQADkA
+wAUQAEEAwAUQAEkAwAUQAFEAwAUQAFkAwAUQAGEAwAUQAGkAwAUGAKEAwAUGAMEAwAUVANEAwAUG
+AJEAIwMGAJEALgMGAJEAkgAgANkAjAQlAJEAqgUqAOEAeAEQAOEAkgYvAHEA6QM2APEAOgM8AHEA
+awMGAHkAwAVBAHkAPgVLAHkAnwZPAIEAVABTAHkA2gNYAHkA8gNdAHkA4QMBAAEBwAUQAHkAlgdj
+AHkA5wZjAJEAwAUGAAkBzQZnAJEAswZvAJkAwAUGABkB4QB1ABkBngd+AKkAwAWEAMkAwAUGAC4A
+CwAJAS4AEwASAS4AGwAxAS4AIwA6AS4AKwBjAS4AMwBjAS4AOwBjAS4AQwA6AS4ASwBpAS4AUwBj
+AS4AWwCAAUMAYwDKAakAcwAxAckAcwAxAeEAewDKAeMAawDKARsAAwABAAcABQAIAAcAAADFAO4A
+AAC0A/IAAACPBPYAAADJA/IAAABJBfoAAABDAf8AAAD3BgQBAgAGAAMAAgAHAAUAAQAIAAcAAQAJ
+AAkAAgATAAsAAgAUAA0AAQAVAA0AAgAWAA8ABIAAAAEAAAAAAAAAAAAAAAAAZgAAAAQAAAAAAAAA
+AAAAAIwAqAAAAAAAEAAAAAAAAAAAAAAAlQAtBwAAAAAQAAAAAAAAAAAAAACVANUEAAAAABAAAAAA
+AAAAAAAAAJUASgcAAAAABAAAAAAAAAAAAAAAjAD7AwAAAAAQAAAAAAAAAAAAAACVAPgEAAAAAAAA
+AAABAAAAEQYAAAAAAAAASURUU0NvbXBvbmVudE1ldGFEYXRhMTAwAElEVFNWYXJpYWJsZTEwMABJ
+RFRTVmFyaWFibGVEaXNwZW5zZXIxMDAASURUU1ZhcmlhYmxlczEwMABHZXRJbnQzMgA8TW9kdWxl
+PgBTQ19FMjMzNTc3RkE1MDc0RDNEQTdEQjc4Q0QxNTVDMUY2QgBJbnB1dElEAGdldF9Db21wb25l
+bnRNZXRhRGF0YQBtc2NvcmxpYgBkZWZhdWx0SW5zdGFuY2UAZ2V0X0Vycm9yQ29kZQBSdW50aW1l
+VHlwZUhhbmRsZQBHZXRUeXBlRnJvbUhhbmRsZQBJbnB1dE5hbWUATWljcm9zb2Z0LlNxbFNlcnZl
+ci5EdHMuUGlwZWxpbmUAVHlwZQBnZXRfQ3VsdHVyZQBzZXRfQ3VsdHVyZQByZXNvdXJjZUN1bHR1
+cmUAQXBwbGljYXRpb25TZXR0aW5nc0Jhc2UARWRpdG9yQnJvd3NhYmxlU3RhdGUATG9ja0Zvcldy
+aXRlAENvbXBpbGVyR2VuZXJhdGVkQXR0cmlidXRlAERlYnVnZ2VyTm9uVXNlckNvZGVBdHRyaWJ1
+dGUARGVidWdnYWJsZUF0dHJpYnV0ZQBFZGl0b3JCcm93c2FibGVBdHRyaWJ1dGUAQXNzZW1ibHlU
+aXRsZUF0dHJpYnV0ZQBBc3NlbWJseVRyYWRlbWFya0F0dHJpYnV0ZQBUYXJnZXRGcmFtZXdvcmtB
+dHRyaWJ1dGUAQXNzZW1ibHlDb25maWd1cmF0aW9uQXR0cmlidXRlAEFzc2VtYmx5RGVzY3JpcHRp
+b25BdHRyaWJ1dGUAQ29tcGlsYXRpb25SZWxheGF0aW9uc0F0dHJpYnV0ZQBBc3NlbWJseVByb2R1
+Y3RBdHRyaWJ1dGUAQXNzZW1ibHlDb3B5cmlnaHRBdHRyaWJ1dGUAU1NJU1NjcmlwdENvbXBvbmVu
+dEVudHJ5UG9pbnRBdHRyaWJ1dGUAQXNzZW1ibHlDb21wYW55QXR0cmlidXRlAFJ1bnRpbWVDb21w
+YXRpYmlsaXR5QXR0cmlidXRlAFByZUV4ZWN1dGUAUG9zdEV4ZWN1dGUAc2V0X1ZhbHVlAHZhbHVl
+AFN5c3RlbS5SdW50aW1lLlZlcnNpb25pbmcAU3RyaW5nAFVubG9jawBTeXN0ZW0uQ29tcG9uZW50
+TW9kZWwAU0NfRTIzMzU3N0ZBNTA3NEQzREE3REI3OENEMTU1QzFGNkIuZGxsAGdldF9FcnJvckNv
+ZGVfSXNOdWxsAHNldF9FcnJvckRlc2NyaXB0aW9uX0lzTnVsbABTZXROdWxsAGdldF9JdGVtAHNl
+dF9JdGVtAFN5c3RlbQByZXNvdXJjZU1hbgBCb29sZWFuAFNjcmlwdE1haW4AU3lzdGVtLkNvbmZp
+Z3VyYXRpb24AU3lzdGVtLkdsb2JhbGl6YXRpb24AU3lzdGVtLlJlZmxlY3Rpb24ASW52YWxpZE9w
+ZXJhdGlvbkV4Y2VwdGlvbgBzZXRfRXJyb3JEZXNjcmlwdGlvbgBHZXRFcnJvckRlc2NyaXB0aW9u
+AFN0cmluZ0NvbXBhcmlzb24AQ3VsdHVyZUluZm8AT3V0cHV0TmFtZU1hcABPdXRwdXRNYXAATWlj
+cm9zb2Z0LlNxbFNlcnZlci5EVFNSdW50aW1lV3JhcABNaWNyb3NvZnQuU3FsU2VydmVyLkRUU1Bp
+cGVsaW5lV3JhcABJbnB1dDBCdWZmZXIAUGlwZWxpbmVCdWZmZXIAU2NyaXB0QnVmZmVyAGdldF9S
+ZXNvdXJjZU1hbmFnZXIATWljcm9zb2Z0LlNxbFNlcnZlci5EdHMuUnVudGltZS5XcmFwcGVyAE1p
+Y3Jvc29mdC5TcWxTZXJ2ZXIuRHRzLlBpcGVsaW5lLldyYXBwZXIAZ2V0X1ZhcmlhYmxlRGlzcGVu
+c2VyAC5jdG9yAC5jY3RvcgBTeXN0ZW0uRGlhZ25vc3RpY3MAU3lzdGVtLlJ1bnRpbWUuQ29tcGls
+ZXJTZXJ2aWNlcwBTeXN0ZW0uUmVzb3VyY2VzAFNDXzU0YTM4MDVmZWQ2OTRkYjI4MjI2ZGMxMmZm
+YWE1MmNjLlByb3BlcnRpZXMuUmVzb3VyY2VzLnJlc291cmNlcwBEZWJ1Z2dpbmdNb2RlcwBTQ181
+NGEzODA1ZmVkNjk0ZGIyODIyNmRjMTJmZmFhNTJjYy5Qcm9wZXJ0aWVzAEdldFZhcmlhYmxlcwBC
+dWZmZXJDb2x1bW5JbmRleGVzAEdldENvbHVtbkluZGV4ZXMAU2V0dGluZ3MARXF1YWxzAENvbm5l
+Y3Rpb25zAE9iamVjdABFbmRPZlJvd3NldABnZXRfRGVmYXVsdABVc2VyQ29tcG9uZW50AFBhcmVu
+dENvbXBvbmVudABTY3JpcHRDb21wb25lbnQATWljcm9zb2Z0LlNxbFNlcnZlci5UeFNjcmlwdABN
+aWNyb3NvZnQuU3FsU2VydmVyLlBpcGVsaW5lSG9zdABJbnB1dDBfUHJvY2Vzc0lucHV0AElucHV0
+MF9Qcm9jZXNzSW5wdXRSb3cATmV4dFJvdwBnZXRfQXNzZW1ibHkAAAAnVQBzAGUAcgA6ADoAaQBz
+AE8AcgBkAGUAcgBGAGEAaQBsAGUAZAAAgJtJAHMATgB1AGwAbAAgAHAAcgBvAHAAZQByAHQAeQAg
+AGMAYQBuAG4AbwB0ACAAYgBlACAAcwBlAHQAIAB0AG8AIABGAGEAbABzAGUALgAgAEEAcwBzAGkA
+ZwBuACAAYQAgAHYAYQBsAHUAZQAgAHQAbwAgAHQAaABlACAAYwBvAGwAdQBtAG4AIABpAG4AcwB0
+AGUAYQBkAC4AAA9JAG4AcAB1AHQAIAAwAABxUwBDAF8ANQA0AGEAMwA4ADAANQBmAGUAZAA2ADkA
+NABkAGIAMgA4ADIAMgA2AGQAYwAxADIAZgBmAGEAYQA1ADIAYwBjAC4AUAByAG8AcABlAHIAdABp
+AGUAcwAuAFIAZQBzAG8AdQByAGMAZQBzAAByJvqmm3rUQZeQS6j5b9EjAAQgAQEIAyAAAQUgAQER
+EQQgAQEOBSABARFdBAcBEjkEIAASbQQgAQ4IBCAAEnEGIAEBEBI5BSABEnkcBCABARwJIAMBEkEd
+CBJFAwYSQQMGHQgEIAEICAQgAQIIBSACAQgcAyAAAgcgAgIOEYCJBSABHQgICAABEoCNEYCRBSAA
+EoCVByACAQ4SgJUIt3pcVhk04IkIiYRdzYCAzJEDBhIUAwYSGAMGEkkDBhJVAwYSWQMGEiAFIAEB
+EgwDIAAIBCABAQIJIAQBCA4SQRJFBSABARJJBAAAElUEAAASWQUAAQESWQQAABIgAwAAAQMoAAgD
+KAACAygADgQIABJVBAgAElkECAASIAgBAAgAAAAAAB4BAAEAVAIWV3JhcE5vbkV4Y2VwdGlvblRo
+cm93cwEIAQACAAAAAAAoAQAjU0NfNTRhMzgwNWZlZDY5NGRiMjgyMjZkYzEyZmZhYTUyY2MAAAUB
+AAAAABYBABFDb3B5cmlnaHQgQCAgMjAyMwAASQEAGi5ORVRGcmFtZXdvcmssVmVyc2lvbj12NC43
+AQBUDhRGcmFtZXdvcmtEaXNwbGF5TmFtZRIuTkVUIEZyYW1ld29yayA0LjcEAQAAAAC0AAAAzsrv
+vgEAAACRAAAAbFN5c3RlbS5SZXNvdXJjZXMuUmVzb3VyY2VSZWFkZXIsIG1zY29ybGliLCBWZXJz
+aW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0
+ZTA4OSNTeXN0ZW0uUmVzb3VyY2VzLlJ1bnRpbWVSZXNvdXJjZVNldAIAAAAAAAAAAAAAAFBBRFBB
+RFC0AAAAADQAAAAAAAAAAAAAGjQAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAw0AAAAAAAAAAAA
+AAAAX0NvckRsbE1haW4AbXNjb3JlZS5kbGwAAAAAAP8lACAAEAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -3958,7 +3953,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAwAAACoNAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAwAAAAsNAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -3989,7 +3984,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
                       dataType="System.String"
                       description="Specifies a comma-separated list of read/write variables."
                       name="ReadWriteVariables"
-                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ScriptUIWriteableVariablePickerDlg">User::isOrdersFailed</property>
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ScriptUIWriteableVariablePickerDlg"></property>
                     <property
                       dataType="System.String"
                       description="List of breakpoints present on the script."
@@ -4003,7 +3998,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
                       dataType="System.String"
                       description="Checksum to match component metedata against compiled codes."
                       name="MetadataChecksum140"
-                      typeConverter="NOTBROWSABLE">A9</property>
+                      typeConverter="NOTBROWSABLE">06</property>
                     <property
                       dataType="System.String"
                       name="UserComponentTypeName">Microsoft.ScriptComponentHost</property>
@@ -4629,33 +4624,53 @@ where [refTable].[CompanyName] = ?</property>
           </DTS:ObjectData>
         </DTS:Executable>
         <DTS:Executable
-          DTS:refId="Package\Foreach Loop Container\OrdersFilureCheck"
+          DTS:refId="Package\Foreach Loop Container\OrdersFailureCheck"
           DTS:CreationName="Microsoft.ScriptTask"
           DTS:Description="Script Task"
-          DTS:DTSID="{c1bd5384-4357-4ded-8a0d-e6668881f658}"
+          DTS:DTSID="{37fbfca0-97da-49d6-a937-ed29722c64af}"
           DTS:ExecutableType="Microsoft.ScriptTask"
           DTS:FailPackageOnFailure="True"
           DTS:LocaleID="-1"
-          DTS:MaxErrorCount="0"
-          DTS:ObjectName="OrdersFilureCheck"
+          DTS:ObjectName="OrdersFailureCheck"
           DTS:ThreadHint="0">
           <DTS:Variables />
           <DTS:ObjectData>
             <ScriptProject
-              Name="ST_d26e88e2277b461489bb0f20e1cd77f8"
+              Name="ST_2c909308700b4bba83eb53bd1d28d924"
               VSTAMajorVersion="16"
               VSTAMinorVersion="0"
               Language="CSharp"
               ReadOnlyVariables="User::isOrderFailed">
               <ProjectItem
-                Name="Properties\Settings.settings"
-                Encoding="UTF8"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
-</SettingsFile>]]></ProjectItem>
+                Name="Properties\AssemblyInfo.cs"
+                Encoding="UTF8"><![CDATA[using System.Reflection;
+using System.Runtime.CompilerServices;
+
+//
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+//
+[assembly: AssemblyTitle("ST_3f7356369a1a49fe8a85e8669955377d")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("ST_3f7356369a1a49fe8a85e8669955377d")]
+[assembly: AssemblyCopyright("Copyright @  2023")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+//
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version 
+//      Build Number
+//      Revision
+//
+// You can specify all the values or you can default the Revision and Build Numbers 
+// by using the '*' as shown below:
+
+[assembly: AssemblyVersion("1.0.*")]]]></ProjectItem>
               <ProjectItem
                 Name="Properties\Resources.resx"
                 Encoding="UTF8"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
@@ -4776,8 +4791,8 @@ where [refTable].[CompanyName] = ?</property>
   </resheader>
 </root>]]></ProjectItem>
               <ProjectItem
-                Name="ST_d26e88e2277b461489bb0f20e1cd77f8.csproj"
-                Encoding="UTF8"><![CDATA[<?xml version="1.0" encoding="utf-8"?><Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"><PropertyGroup><ProjectTypeGuids>{30D016F9-3734-4E33-A861-5E7D899E18F3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids><Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration><Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform><ProductVersion>8.0.30703</ProductVersion><SchemaVersion>2.0</SchemaVersion><ProjectGuid>{aa5ba93b-36e4-4060-93f9-dcf705767cb5}</ProjectGuid><OutputType>Library</OutputType><AppDesignerFolder>Properties</AppDesignerFolder><RootNamespace>ST_3f7356369a1a49fe8a85e8669955377d</RootNamespace><AssemblyName>ST_d26e88e2277b461489bb0f20e1cd77f8</AssemblyName><TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion><FileAlignment>512</FileAlignment><ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>true</ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch></PropertyGroup><PropertyGroup Condition=" '$(Configuration)' == 'Debug' "><DebugSymbols>true</DebugSymbols><DebugType>full</DebugType><Optimize>false</Optimize><OutputPath>.\bin\Debug\</OutputPath><EnableUnmanagedDebugging>false</EnableUnmanagedDebugging><DefineConstants>DEBUG;TRACE</DefineConstants><ErrorReport>prompt</ErrorReport><WarningLevel>4</WarningLevel></PropertyGroup><PropertyGroup Condition=" '$(Configuration)' == 'Release' "><DebugSymbols>false</DebugSymbols><Optimize>true</Optimize><OutputPath>.\bin\Release\</OutputPath><EnableUnmanagedDebugging>false</EnableUnmanagedDebugging><DefineConstants>TRACE</DefineConstants><ErrorReport>prompt</ErrorReport><WarningLevel>4</WarningLevel></PropertyGroup><ItemGroup><Reference Include="System" /><Reference Include="System.Data" /><Reference Include="System.Windows.Forms" /><Reference Include="System.Xml" /><Reference Include="Microsoft.SqlServer.ManagedDTS, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" /><Reference Include="Microsoft.SqlServer.ScriptTask, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" /></ItemGroup><ItemGroup><AppDesigner Include="Properties\" /><Compile Include="Properties\AssemblyInfo.cs"><SubType>Code</SubType></Compile><EmbeddedResource Include="Properties\Resources.resx"><Generator>ResXFileCodeGenerator</Generator><LastGenOutput>Resources.Designer.cs</LastGenOutput></EmbeddedResource><Compile Include="Properties\Resources.Designer.cs"><AutoGen>True</AutoGen><DependentUpon>Resources.resx</DependentUpon></Compile><None Include="Properties\Settings.settings"><Generator>SettingsSingleFileGenerator</Generator><LastGenOutput>Settings.Designer.cs</LastGenOutput></None><Compile Include="Properties\Settings.Designer.cs"><AutoGen>True</AutoGen><DependentUpon>Settings.settings</DependentUpon></Compile><Compile Include="ScriptMain.cs"><SubType>Code</SubType></Compile></ItemGroup><!-- Include the build rules for a C# project.--><Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" /><ProjectExtensions><VisualStudio><FlavorProperties GUID="{30D016F9-3734-4E33-A861-5E7D899E18F3}"><ProjectProperties HostName="ScriptTask" HostPackage="{B3A685AA-7EAF-4BC6-9940-57959FA5AC07}" ApplicationType="usd" Language="cs" TemplatesPath="" DebugInfoCommandLine="" DebugInfoWorkingDir="" IconImageList="" /><Host Name="ScriptTask" GeneratedNamespace="$safeprojectname" IconIndex=""></Host><ProjectClient><HostIdentifier>SSIS_ST160</HostIdentifier></ProjectClient></FlavorProperties></VisualStudio></ProjectExtensions></Project>]]></ProjectItem>
+                Name="ST_2c909308700b4bba83eb53bd1d28d924.csproj"
+                Encoding="UTF8"><![CDATA[<?xml version="1.0" encoding="utf-8"?><Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"><PropertyGroup><ProjectTypeGuids>{30D016F9-3734-4E33-A861-5E7D899E18F3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids><Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration><Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform><ProductVersion>8.0.30703</ProductVersion><SchemaVersion>2.0</SchemaVersion><ProjectGuid>{aa5ba93b-36e4-4060-93f9-dcf705767cb5}</ProjectGuid><OutputType>Library</OutputType><AppDesignerFolder>Properties</AppDesignerFolder><RootNamespace>ST_3f7356369a1a49fe8a85e8669955377d</RootNamespace><AssemblyName>ST_2c909308700b4bba83eb53bd1d28d924</AssemblyName><TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion><FileAlignment>512</FileAlignment><ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>true</ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch></PropertyGroup><PropertyGroup Condition=" '$(Configuration)' == 'Debug' "><DebugSymbols>true</DebugSymbols><DebugType>full</DebugType><Optimize>false</Optimize><OutputPath>.\bin\Debug\</OutputPath><EnableUnmanagedDebugging>false</EnableUnmanagedDebugging><DefineConstants>DEBUG;TRACE</DefineConstants><ErrorReport>prompt</ErrorReport><WarningLevel>4</WarningLevel></PropertyGroup><PropertyGroup Condition=" '$(Configuration)' == 'Release' "><DebugSymbols>false</DebugSymbols><Optimize>true</Optimize><OutputPath>.\bin\Release\</OutputPath><EnableUnmanagedDebugging>false</EnableUnmanagedDebugging><DefineConstants>TRACE</DefineConstants><ErrorReport>prompt</ErrorReport><WarningLevel>4</WarningLevel></PropertyGroup><ItemGroup><Reference Include="System" /><Reference Include="System.Data" /><Reference Include="System.Windows.Forms" /><Reference Include="System.Xml" /><Reference Include="Microsoft.SqlServer.ManagedDTS, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" /><Reference Include="Microsoft.SqlServer.ScriptTask, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" /></ItemGroup><ItemGroup><AppDesigner Include="Properties\" /><Compile Include="Properties\AssemblyInfo.cs"><SubType>Code</SubType></Compile><EmbeddedResource Include="Properties\Resources.resx"><Generator>ResXFileCodeGenerator</Generator><LastGenOutput>Resources.Designer.cs</LastGenOutput></EmbeddedResource><Compile Include="Properties\Resources.Designer.cs"><AutoGen>True</AutoGen><DependentUpon>Resources.resx</DependentUpon></Compile><None Include="Properties\Settings.settings"><Generator>SettingsSingleFileGenerator</Generator><LastGenOutput>Settings.Designer.cs</LastGenOutput></None><Compile Include="Properties\Settings.Designer.cs"><AutoGen>True</AutoGen><DependentUpon>Settings.settings</DependentUpon></Compile><Compile Include="ScriptMain.cs"><SubType>Code</SubType></Compile></ItemGroup><!-- Include the build rules for a C# project.--><Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" /><ProjectExtensions><VisualStudio><FlavorProperties GUID="{30D016F9-3734-4E33-A861-5E7D899E18F3}"><ProjectProperties HostName="ScriptTask" HostPackage="{B3A685AA-7EAF-4BC6-9940-57959FA5AC07}" ApplicationType="usd" Language="cs" TemplatesPath="" DebugInfoCommandLine="" DebugInfoWorkingDir="" IconImageList="" /><Host Name="ScriptTask" GeneratedNamespace="$safeprojectname" IconIndex=""></Host><ProjectClient><HostIdentifier>SSIS_ST160</HostIdentifier></ProjectClient></FlavorProperties></VisualStudio></ProjectExtensions></Project>]]></ProjectItem>
               <ProjectItem
                 Name="ScriptMain.cs"
                 Encoding="UTF8"><![CDATA[#region Help:  Introduction to the script task
@@ -4906,7 +4921,7 @@ namespace ST_3f7356369a1a49fe8a85e8669955377d
     <msb:ProjectId>{412B3163-EA1A-4A85-BF5C-022B0F511189}</msb:ProjectId>
   </msb:PropertyGroup>
   <msb:ItemGroup>
-    <msb:Project Include="ST_d26e88e2277b461489bb0f20e1cd77f8.csproj" />
+    <msb:Project Include="ST_2c909308700b4bba83eb53bd1d28d924.csproj" />
     <msb:File Include="Properties\Resources.Designer.cs" />
     <msb:File Include="Properties\Settings.settings" />
     <msb:File Include="Properties\AssemblyInfo.cs" />
@@ -4945,35 +4960,14 @@ namespace ST_3f7356369a1a49fe8a85e8669955377d.Properties {
     }
 }]]></ProjectItem>
               <ProjectItem
-                Name="Properties\AssemblyInfo.cs"
-                Encoding="UTF8"><![CDATA[using System.Reflection;
-using System.Runtime.CompilerServices;
-
-//
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-//
-[assembly: AssemblyTitle("ST_3f7356369a1a49fe8a85e8669955377d")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ST_3f7356369a1a49fe8a85e8669955377d")]
-[assembly: AssemblyCopyright("Copyright @  2023")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-//
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Revision and Build Numbers 
-// by using the '*' as shown below:
-
-[assembly: AssemblyVersion("1.0.*")]]]></ProjectItem>
+                Name="Properties\Settings.settings"
+                Encoding="UTF8"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
+<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
+  <Profiles>
+    <Profile Name="(Default)" />
+  </Profiles>
+  <Settings />
+</SettingsFile>]]></ProjectItem>
               <ProjectItem
                 Name="Properties\Resources.Designer.cs"
                 Encoding="UTF8"><![CDATA[//------------------------------------------------------------------------------
@@ -5159,11 +5153,11 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
         <DTS:PrecedenceConstraint
           DTS:refId="Package\Foreach Loop Container.PrecedenceConstraints[Constraint]"
           DTS:CreationName=""
-          DTS:DTSID="{54FF7471-297A-4EC0-8E3B-59A1BF601557}"
+          DTS:DTSID="{881A3B7C-ECC6-4D2C-8F60-F036B64DA520}"
           DTS:From="Package\Foreach Loop Container\GetOrders"
           DTS:LogicalAnd="True"
           DTS:ObjectName="Constraint"
-          DTS:To="Package\Foreach Loop Container\OrdersFilureCheck" />
+          DTS:To="Package\Foreach Loop Container\OrdersFailureCheck" />
         <DTS:PrecedenceConstraint
           DTS:refId="Package\Foreach Loop Container.PrecedenceConstraints[Constraint 1]"
           DTS:CreationName=""
@@ -5175,8 +5169,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
         <DTS:PrecedenceConstraint
           DTS:refId="Package\Foreach Loop Container.PrecedenceConstraints[Constraint 2]"
           DTS:CreationName=""
-          DTS:DTSID="{9589663B-8DAE-434A-B256-150A61C9CE57}"
-          DTS:From="Package\Foreach Loop Container\OrdersFilureCheck"
+          DTS:DTSID="{6795FEBD-14DE-4612-B055-B258499D0A49}"
+          DTS:From="Package\Foreach Loop Container\OrdersFailureCheck"
           DTS:LogicalAnd="True"
           DTS:ObjectName="Constraint 2"
           DTS:To="Package\Foreach Loop Container\GetLastOrderId" />
@@ -5206,29 +5200,29 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
         <NodeLayout
           Size="150.4,41.6"
           Id="Package\Foreach Loop Container\GetLastOrderId"
-          TopLeft="28.9333244588642,213.525928792718" />
+          TopLeft="31.4333243595231,226.525928896033" />
         <NodeLayout
           Size="153.6,41.6"
           Id="Package\Foreach Loop Container\GetOrderDetails"
-          TopLeft="29.2185055637059,296.703706430447" />
+          TopLeft="26.718505663047,341.770373455271" />
         <NodeLayout
           Size="127.2,41.6"
           Id="Package\Foreach Loop Container\GetOrders"
-          TopLeft="45.8851715680988,23.8962968549619" />
+          TopLeft="37.5518385659024,4.82963003676699" />
         <EdgeLayout
           Id="Package\Foreach Loop Container.PrecedenceConstraints[Constraint 1]"
-          TopLeft="105.075915011285,255.125928792718">
+          TopLeft="105.075915011285,268.125928896033">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,41.577777637729"
+              EndConnector="0,73.6444445592385"
               Start="0,0"
-              End="0,34.077777637729">
+              End="0,66.1444445592385">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,34.077777637729" />
+                    End="0,66.1444445592385" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -5238,23 +5232,23 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <NodeLayout
-          Size="165.6,41.6"
-          Id="Package\Foreach Loop Container\OrdersFilureCheck"
-          TopLeft="24.6666667991214,132.333332045343" />
+          Size="171.2,41.6"
+          Id="Package\Foreach Loop Container\OrdersFailureCheck"
+          TopLeft="21.2333249555698,113.933335351414" />
         <EdgeLayout
           Id="Package\Foreach Loop Container.PrecedenceConstraints[Constraint]"
-          TopLeft="108.47591918361,65.4962968549619">
+          TopLeft="103.992581760736,46.429630036767">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,66.8370351903813"
+              EndConnector="0,67.5037053146473"
               Start="0,0"
-              End="0,59.3370351903813">
+              End="0,60.0037053146473">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,59.3370351903813" />
+                    End="0,60.0037053146473" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -5265,18 +5259,18 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
         </EdgeLayout>
         <EdgeLayout
           Id="Package\Foreach Loop Container.PrecedenceConstraints[Constraint 2]"
-          TopLeft="105.799995628993,173.933332045343">
+          TopLeft="106.733324657546,155.533335351414">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,39.5925967473746"
+              EndConnector="0,70.9925935446186"
               Start="0,0"
-              End="0,32.0925967473746">
+              End="0,63.4925935446186">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,32.0925967473746" />
+                    End="0,63.4925935446186" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -5288,8 +5282,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
         <ContainerLayout
           HeaderHeight="43"
           IsExpanded="True"
-          PanelSize="220.8,393.6"
-          Size="220.8,436.8"
+          PanelSize="220.8,438.4"
+          Size="220.8,481.6"
           Id="Package\Foreach Loop Container"
           TopLeft="189.999992450079,117.26666762405" />
       </GraphLayout>
@@ -5343,9 +5337,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -5367,9 +5359,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -5391,9 +5381,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -5486,7 +5474,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
         <NodeLayout
           Size="206.4,41.6"
           Id="Package\Foreach Loop Container\GetOrders\GetErrorDescriptionColumn"
-          TopLeft="439.533324359523,156.70000119845" />
+          TopLeft="426.199991556009,158.433334545559" />
         <NodeLayout
           Size="131.2,41.6"
           Id="Package\Foreach Loop Container\GetOrders\GetShipper"
@@ -5498,7 +5486,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
         <NodeLayout
           Size="145.6,41.6"
           Id="Package\Foreach Loop Container\GetOrders\ErrorLogsDest"
-          TopLeft="465.999982615313,407.766669545702" />
+          TopLeft="454.333316412238,404.300002851485" />
         <EdgeLayout
           Id="Package\Foreach Loop Container\GetOrders.Paths[Row Count Output 1]"
           TopLeft="224.524067951721,324.966669545702">
@@ -5523,18 +5511,18 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
         </EdgeLayout>
         <EdgeLayout
           Id="Package\Foreach Loop Container\GetOrders.Paths[Output 0]"
-          TopLeft="540.766653487418,198.30000119845">
+          TopLeft="528.266653984123,200.033334545559">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,209.466668347252"
+              EndConnector="0,204.266668305926"
               Start="0,0"
-              End="0,201.966668347252">
+              End="0,196.766668305926">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,201.966668347252" />
+                    End="0,196.766668305926" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -5569,25 +5557,25 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
         </EdgeLayout>
         <EdgeLayout
           Id="Package\Foreach Loop Container\GetOrders.Paths[Lookup Error Output]"
-          TopLeft="294.199994635582,179.833334359593">
+          TopLeft="294.199994635582,180.700001033147">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="145.333329723941,0"
+              EndConnector="131.999996920427,0"
               Start="0,0"
-              End="137.833329723941,0">
+              End="124.499996920427,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="137.833329723941,0" />
+                    End="124.499996920427,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
             <mssgm:EdgeLabel
-              BoundingBox="23.0502781432205,5,91.7327734375,11.609375"
+              BoundingBox="16.3836117414633,5,91.7327734375,11.609375"
               RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>

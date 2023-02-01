@@ -11,8 +11,8 @@
   DTS:LocaleID="1033"
   DTS:ObjectName="OrdersIntegrationWithErrorFlow"
   DTS:PackageType="5"
-  DTS:VersionBuild="98"
-  DTS:VersionGUID="{719D3B44-E041-478D-8212-04120238D5DC}">
+  DTS:VersionBuild="102"
+  DTS:VersionGUID="{C3BB19C0-4B32-42AB-AF46-9D21815DD794}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -3410,7 +3410,6 @@ public class ScriptMain : UserComponent
     public override void PostExecute()
     {
         base.PostExecute();
-        Variables.isOrderFailed = true;
     }
 
     /// <summary>
@@ -3426,6 +3425,14 @@ public class ScriptMain : UserComponent
     public override void Input0_ProcessInputRow(Input0Buffer Row)
     {
         Row.ErrorDescription = this.ComponentMetaData.GetErrorDescription(Row.ErrorCode);
+        VariableDispenser variableDispenser = (VariableDispenser)this.VariableDispenser;
+        variableDispenser.LockForWrite("User::isOrderFailed");
+        IDTSVariables100 vars;
+        variableDispenser.GetVariables(out vars);
+
+        vars["User::isOrderFailed"].Value = true;
+
+        vars.Unlock();
     }
 
 }
@@ -3592,18 +3599,6 @@ public class Variables
         ParentComponent = Component;
     }
 
-    public Boolean isOrderFailed
-    {
-        get
-        {
-            return (Boolean)(ParentComponent.ReadWriteVariables["isOrderFailed"].GetValueWithContext(ScriptComponent.EvaluatorContext));
-        }
-        set
-        {
-            ParentComponent.ReadWriteVariables["isOrderFailed"].Value = value;
-        }
-    }
-
 }
 ]]></arrayElement>
                     <arrayElement
@@ -3691,7 +3686,7 @@ public class Input0Buffer: ScriptBuffer
     <msb:CodeName>SC_54a3805fed694db28226dc12ffaa52cc</msb:CodeName>
     <msb:Language>msBuild</msb:Language>
     <msb:DisplayName>SC_54a3805fed694db28226dc12ffaa52cc</msb:DisplayName>
-    <msb:ProjectId>{88833D70-A9EA-489F-ABDF-82B6190DBDC5}</msb:ProjectId>
+    <msb:ProjectId>{3AB97340-3353-4343-9B39-499DDBA4E3AE}</msb:ProjectId>
   </msb:PropertyGroup>
   <msb:ItemGroup>
     <msb:Project Include="SC_54a3805fed694db28226dc12ffaa52cc.csproj" />
@@ -3837,106 +3832,106 @@ namespace SC_54a3805fed694db28226dc12ffaa52cc.Properties {
                     <arrayElement
                       dataType="System.String"><![CDATA[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
-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
+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
-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
+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
-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
+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
-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
-AIYYuQUGAAIAjSAAAAAAhhi5BSUAAgCYIAAAAACGCOQAvAAFAK0gAAAAAIYIvwNHAAUAtiAAAAAA
-hgiGBBAABQDAIAAAAACGCNQDwAAGANcgAAAAAIYA3QdHAAcA3yAAAAAAhgDqBkcABwDnIAAAAACG
-GLkFBgAHAAchAAAAAMYAdQfFAAcALCEAAAAAxgFuB7YACwA/IQAAAADGAcYHtgAMAEEhAAAAAIYY
-uQXPAA0AUCEAAAAAhhi5Bc8ADgBfIQAAAACGCLAARwAPAIUhAAAAAIYIwgDAAA8ApyEAAAAAgxi5
-BQYAEACvIQAAAACTCFQF1QAQANshAAAAAJMIRgHaABAA4iEAAAAAkwhSAd8AEADqIQAAAACWCPYG
-5QARAPEhAAAAAIYYuQUGABEA+SEAAAAAkRi/BeoAEQAAAAEA4QcAAAEATQUAAAIAogYAAAMA2gQA
-AAEAWgMAAAEAWgMAAAEAiQAAAAIAFgEAAAMATQUAAAQA2gQAAAEATQUAAAEA4QcAAAEAJgcAAAEA
-JgcAAAEAWgMAAAEAWgMJALkFAQARALkFBgAZALkFCgApALkFEAAxALkFEAA5ALkFEABBALkFEABJ
-ALkFEABRALkFEABZALkFEABhALkFEABpALkFBgCZALkFBgC5ALkFFQDJALkFBgCJADkDBgCJAEQD
-BgCJAJEAGwDRAJsEIABxALkFJQBxAE0FLwBxAKIGMwB5AFMANwBxAOkDPABxAAEEQQBxAPADAQDZ
-ALkFEABxAN0HRwBxAOoGRwCJALkFBgDhANAGSwCJALYGUgCRALkFBgCJAIsGWADxAPgDXQCJALEH
-YwD5AIIHaQD5AFADcAAZAQQBdQAZAeUHfgChALkFhADBALkFBgAuAAsACQEuABMAEgEuABsAMQEu
-ACMAOgEuACsAYwEuADMAYwEuADsAYwEuAEMAOgEuAEsAaQEuAFMAYwEuAFsAgAFDAGMAygHJAHMA
-MQHhAHsAygHjAGsAygHpAHMAMQEDAAEABgAFAAcABgAIAAgAAADoAO4AAADDA/IAAACeBPYAAADY
-A/IAAADGAPIAAABYBfoAAABmAf8AAAD6BgQBAgAGAAMAAgAHAAUAAQAIAAcAAQAJAAkAAgASAAsA
-AQATAAsAAgAVAA0AAgAWAA8AAQAXAA8AAgAYABEABIAAAAEAAAAAAAAAAAAAAAAAZQAAAAQAAAAA
-AAAAAAAAAIwApwAAAAAAEAAAAAAAAAAAAAAAlQAwBwAAAAAQAAAAAAAAAAAAAACVAE0HAAAAAAQA
-AAAAAAAAAAAAAIwACgQAAAAAEAAAAAAAAAAAAAAAlQAHBQAAAAAQAAAAAAAAAAAAAACVAOQEAAAA
-AAAAAAABAAAACgYAAAAAAAAASURUU0NvbXBvbmVudE1ldGFEYXRhMTAwAElEVFNWYXJpYWJsZTEw
-MABJRFRTVmFyaWFibGVzMTAwAElEVFNFdmFsdWF0b3JDb250ZXh0MTAwAEdldEludDMyADxNb2R1
-bGU+AFNDX0UyMzM1NzdGQTUwNzREM0RBN0RCNzhDRDE1NUMxRjZCAElucHV0SUQAZ2V0X0NvbXBv
-bmVudE1ldGFEYXRhAG1zY29ybGliAGdldF9pc09yZGVyRmFpbGVkAHNldF9pc09yZGVyRmFpbGVk
-AGRlZmF1bHRJbnN0YW5jZQBnZXRfRXJyb3JDb2RlAFJ1bnRpbWVUeXBlSGFuZGxlAEdldFR5cGVG
-cm9tSGFuZGxlAElucHV0TmFtZQBNaWNyb3NvZnQuU3FsU2VydmVyLkR0cy5QaXBlbGluZQBUeXBl
-AGdldF9DdWx0dXJlAHNldF9DdWx0dXJlAHJlc291cmNlQ3VsdHVyZQBBcHBsaWNhdGlvblNldHRp
-bmdzQmFzZQBFZGl0b3JCcm93c2FibGVTdGF0ZQBDb21waWxlckdlbmVyYXRlZEF0dHJpYnV0ZQBE
-ZWJ1Z2dlck5vblVzZXJDb2RlQXR0cmlidXRlAERlYnVnZ2FibGVBdHRyaWJ1dGUARWRpdG9yQnJv
-d3NhYmxlQXR0cmlidXRlAEFzc2VtYmx5VGl0bGVBdHRyaWJ1dGUAQXNzZW1ibHlUcmFkZW1hcmtB
-dHRyaWJ1dGUAVGFyZ2V0RnJhbWV3b3JrQXR0cmlidXRlAEFzc2VtYmx5Q29uZmlndXJhdGlvbkF0
-dHJpYnV0ZQBBc3NlbWJseURlc2NyaXB0aW9uQXR0cmlidXRlAENvbXBpbGF0aW9uUmVsYXhhdGlv
-bnNBdHRyaWJ1dGUAQXNzZW1ibHlQcm9kdWN0QXR0cmlidXRlAEFzc2VtYmx5Q29weXJpZ2h0QXR0
-cmlidXRlAFNTSVNTY3JpcHRDb21wb25lbnRFbnRyeVBvaW50QXR0cmlidXRlAEFzc2VtYmx5Q29t
-cGFueUF0dHJpYnV0ZQBSdW50aW1lQ29tcGF0aWJpbGl0eUF0dHJpYnV0ZQBQcmVFeGVjdXRlAFBv
-c3RFeGVjdXRlAHNldF9WYWx1ZQB2YWx1ZQBTeXN0ZW0uUnVudGltZS5WZXJzaW9uaW5nAFN0cmlu
-ZwBTeXN0ZW0uQ29tcG9uZW50TW9kZWwAU0NfRTIzMzU3N0ZBNTA3NEQzREE3REI3OENEMTU1QzFG
-NkIuZGxsAGdldF9FcnJvckNvZGVfSXNOdWxsAHNldF9FcnJvckRlc2NyaXB0aW9uX0lzTnVsbABT
-ZXROdWxsAGdldF9JdGVtAHNldF9JdGVtAFN5c3RlbQByZXNvdXJjZU1hbgBCb29sZWFuAFNjcmlw
-dE1haW4AU3lzdGVtLkNvbmZpZ3VyYXRpb24AU3lzdGVtLkdsb2JhbGl6YXRpb24AU3lzdGVtLlJl
-ZmxlY3Rpb24ASW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbgBzZXRfRXJyb3JEZXNjcmlwdGlvbgBH
-ZXRFcnJvckRlc2NyaXB0aW9uAFN0cmluZ0NvbXBhcmlzb24AQ3VsdHVyZUluZm8AT3V0cHV0TmFt
-ZU1hcABPdXRwdXRNYXAATWljcm9zb2Z0LlNxbFNlcnZlci5EVFNSdW50aW1lV3JhcABNaWNyb3Nv
-ZnQuU3FsU2VydmVyLkRUU1BpcGVsaW5lV3JhcABJbnB1dDBCdWZmZXIAUGlwZWxpbmVCdWZmZXIA
-U2NyaXB0QnVmZmVyAGdldF9SZXNvdXJjZU1hbmFnZXIATWljcm9zb2Z0LlNxbFNlcnZlci5EdHMu
-UnVudGltZS5XcmFwcGVyAE1pY3Jvc29mdC5TcWxTZXJ2ZXIuRHRzLlBpcGVsaW5lLldyYXBwZXIA
-LmN0b3IALmNjdG9yAFN5c3RlbS5EaWFnbm9zdGljcwBTeXN0ZW0uUnVudGltZS5Db21waWxlclNl
-cnZpY2VzAFN5c3RlbS5SZXNvdXJjZXMAU0NfNTRhMzgwNWZlZDY5NGRiMjgyMjZkYzEyZmZhYTUy
-Y2MuUHJvcGVydGllcy5SZXNvdXJjZXMucmVzb3VyY2VzAERlYnVnZ2luZ01vZGVzAFNDXzU0YTM4
-MDVmZWQ2OTRkYjI4MjI2ZGMxMmZmYWE1MmNjLlByb3BlcnRpZXMAZ2V0X1JlYWRXcml0ZVZhcmlh
-YmxlcwBCdWZmZXJDb2x1bW5JbmRleGVzAEdldENvbHVtbkluZGV4ZXMAU2V0dGluZ3MARXF1YWxz
-AENvbm5lY3Rpb25zAE9iamVjdABFbmRPZlJvd3NldABnZXRfRGVmYXVsdABVc2VyQ29tcG9uZW50
-AFBhcmVudENvbXBvbmVudABTY3JpcHRDb21wb25lbnQATWljcm9zb2Z0LlNxbFNlcnZlci5UeFNj
-cmlwdABNaWNyb3NvZnQuU3FsU2VydmVyLlBpcGVsaW5lSG9zdABJbnB1dDBfUHJvY2Vzc0lucHV0
-AEdldFZhbHVlV2l0aENvbnRleHQAU2NyaXB0Q29tcG9uZW50RXZhbENvbnRleHQAZ2V0X0V2YWx1
-YXRvckNvbnRleHQASW5wdXQwX1Byb2Nlc3NJbnB1dFJvdwBOZXh0Um93AGdldF9Bc3NlbWJseQAA
-AACAm0kAcwBOAHUAbABsACAAcAByAG8AcABlAHIAdAB5ACAAYwBhAG4AbgBvAHQAIABiAGUAIABz
-AGUAdAAgAHQAbwAgAEYAYQBsAHMAZQAuACAAQQBzAHMAaQBnAG4AIABhACAAdgBhAGwAdQBlACAA
-dABvACAAdABoAGUAIABjAG8AbAB1AG0AbgAgAGkAbgBzAHQAZQBhAGQALgAAD0kAbgBwAHUAdAAg
-ADAAABtpAHMATwByAGQAZQByAEYAYQBpAGwAZQBkAABxUwBDAF8ANQA0AGEAMwA4ADAANQBmAGUA
-ZAA2ADkANABkAGIAMgA4ADIAMgA2AGQAYwAxADIAZgBmAGEAYQA1ADIAYwBjAC4AUAByAG8AcABl
-AHIAdABpAGUAcwAuAFIAZQBzAG8AdQByAGMAZQBzAADslI2YOuqeSYbMT56FaNR3AAQgAQEIAyAA
-AQUgAQEREQQgAQEOBSABARFZBCAAEmkEIAEOCAkgAwESPR0IEkEDBhI9AwYdCAQgAQgIBCABAggF
-IAIBCBwDIAACBiACAg4RdQUgAR0ICAQgABJ5BSABEn0cBQAAEoCBBiABHBKAhQQgAQEcCAABEoCN
-EYCRBSAAEoCVByACAQ4SgJUIt3pcVhk04IkIiYRdzYCAzJEDBhIUAwYSGAMGEkUDBhJRAwYSVQMG
-EiAFIAEBEgwDIAAIBCABAQIJIAQBCA4SPRJBBSABARJFBAAAElEEAAASVQUAAQESVQQAABIgAwAA
-AQMoAAgDKAACAygADgQIABJRBAgAElUECAASIAgBAAgAAAAAAB4BAAEAVAIWV3JhcE5vbkV4Y2Vw
-dGlvblRocm93cwEIAQACAAAAAAAoAQAjU0NfNTRhMzgwNWZlZDY5NGRiMjgyMjZkYzEyZmZhYTUy
-Y2MAAAUBAAAAABYBABFDb3B5cmlnaHQgQCAgMjAyMwAASQEAGi5ORVRGcmFtZXdvcmssVmVyc2lv
-bj12NC43AQBUDhRGcmFtZXdvcmtEaXNwbGF5TmFtZRIuTkVUIEZyYW1ld29yayA0LjcEAQAAAAC0
-AAAAzsrvvgEAAACRAAAAbFN5c3RlbS5SZXNvdXJjZXMuUmVzb3VyY2VSZWFkZXIsIG1zY29ybGli
-LCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVj
-NTYxOTM0ZTA4OSNTeXN0ZW0uUmVzb3VyY2VzLlJ1bnRpbWVSZXNvdXJjZVNldAIAAAAAAAAAAAAA
-AFBBRFBBRFC0AAAAeDQAAAAAAAAAAAAAkjQAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIQ0AAAA
-AAAAAAAAAAAAX0NvckRsbE1haW4AbXNjb3JlZS5kbGwAAAAAAP8lACAAEAAAAAAAAAAAAAAAAAAA
+LnJlbG9jAAAMAAAAAGAAAAACAAAAHgAAAAAAAAAAAAAAAAAAQAAAQgAAAAAAAAAAAAAAAAAAAAAM
+NAAAAAAAAEgAAAACAAUA+CEAACgRAAABAAAAAAAAACAzAAC4AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4CKBAAAAoqHgIoEQAACioTMAMAUQAAAAEAABEDAigSAAAK
+A28GAAAGbxMAAApvCAAABgIoFAAACnQdAAABJXIBAABwbxUAAAoSAG8WAAAKBnIBAABwbxcAAAoX
+jB8AAAFvGAAACgZvGQAACioeAigMAAAGKioCAwQFKBoAAAoqUgJ7GwAACgJ7HAAAChaUbx0AAAoq
+IgIWKB4AAAoqJgIXAygfAAAKKloDLAgCFyggAAAKKnIpAABwcyEAAAp6HgIoIgAACioeAigjAAAK
+Kn4CKCQAAAoCAnMQAAAGfQEAAAQCAnMRAAAGfQIAAAQqkgRyxgAAcBpvJQAACiwVAgUCAygmAAAK
+DgRzBQAABm8OAAAGKkorBwIDbw8AAAYDbwoAAAYt8SoGKjoCKCcAAAoCA30DAAAEKjoCKCcAAAoC
+A30EAAAEKh4CKCcAAAoqrn4FAAAELR5y1gAAcNAHAAACKCgAAApvKQAACnMqAAAKgAUAAAR+BQAA
+BCoafgYAAAQqHgKABgAABCoafgcAAAQqHgIoKwAACioucxcAAAaABwAABCoAAABCU0pCAQABAAAA
+AAAMAAAAdjQuMC4zMDMxOQAAAAAFAGwAAADoBQAAI34AAFQGAACsBwAAI1N0cmluZ3MAAAAAAA4A
+AEgBAAAjVVMASA8AABAAAAAjR1VJRAAAAFgPAADQAQAAI0Jsb2IAAAAAAAAAAgAAAVcVogEJAQAA
+APoBMwAWAAABAAAAJQAAAAgAAAAHAAAAGAAAAA8AAAArAAAAEAAAAAEAAAADAAAABwAAAAgAAAAB
+AAAABgAAAAEAAAAAAIgDAQAAAAAABgBxAuAFBgAFA+AFBgC9Ac0FDwBUBgAABgDqAUsEBgBUAksE
+BgA1AksEBgDsAksEBgCRAksEBgCqAksEBgABAksEBgAcAkoDCgDFAv0ADgBDAFkFCgA4Bf0AEgAp
+Bf0ACgC9BP0ACgAdB/0ABgDgBvsDBgCgAc0FBgBJBQAGBgCxBDYEFgBjAXIDFgDRAXIDFgBLASEE
+BgCFAeAFGgABAIEFDgAqAFkFDgCuBVkFDgAaAFkFBgAOBPsDBgBdBPsDBgBkA/sDBgCgBPsDBgAe
+AfsDBgDPAPsDBgCiB0sEAAAAAF0AAAAAAAEAAQABABAAFgQAABAAAQABAAEAEAAcBQAAPQABAAUA
+AQAQAP8GAABJAAEADAABABAA1AYAAE0AAwAQAAEAEACVBgAATQAEABEAAAAQAAcGYwZNAAUAEgAA
+ARAAxAZjBmUABwAWAAYA1AaeAAYAlQaiAAEADQemAAEADQemABEAAgSqABEAOwGuABEAsQCyAFAg
+AAAAAMYAIwMGAAEAWCAAAAAAxgAuAwYAAQBgIAAAAADGAH8HtgABAL0gAAAAAIYYwAUGAAIAxSAA
+AAAAhhjABUEAAgDQIAAAAACGCMEAvAAFAOUgAAAAAIYIsANjAAUA7iAAAAAAhgh3BBAABQD4IAAA
+AACGCMUDwAAGAA8hAAAAAIYAlgdjAAcAFyEAAAAAhgDnBmMABwAfIQAAAACGGMAFBgAHAD8hAAAA
+AMYAcgfFAAcAZCEAAAAAxgFrB7YACwB3IQAAAADGAX8HtgAMAHkhAAAAAIYYwAXPAA0AiCEAAAAA
+hhjABc8ADgCXIQAAAACDGMAFBgAPAJ8hAAAAAJMIRQXVAA8AyyEAAAAAkwgjAdoADwDSIQAAAACT
+CC8B3wAPANohAAAAAJYI8wblABAA4SEAAAAAhhjABQYAEADpIQAAAACRGMYF6gAQAAAAAQCaBwAA
+AQA+BQAAAgCfBgAAAwDLBAAAAQBEAwAAAQBEAwAAAQCKAAAAAgDzAAAAAwA+BQAABADLBAAAAQA+
+BQAAAQCaBwAAAQAjBwAAAQAjBwAAAQBEAwkAwAUBABEAwAUGABkAwAUKACkAwAUQADEAwAUQADkA
+wAUQAEEAwAUQAEkAwAUQAFEAwAUQAFkAwAUQAGEAwAUQAGkAwAUGAKEAwAUGAMEAwAUVANEAwAUG
+AJEAIwMGAJEALgMGAJEAkgAgANkAjAQlAJEAqgUqAOEAeAEQAOEAkgYvAHEA6QM2APEAOgM8AHEA
+awMGAHkAwAVBAHkAPgVLAHkAnwZPAIEAVABTAHkA2gNYAHkA8gNdAHkA4QMBAAEBwAUQAHkAlgdj
+AHkA5wZjAJEAwAUGAAkBzQZnAJEAswZvAJkAwAUGABkB4QB1ABkBngd+AKkAwAWEAMkAwAUGAC4A
+CwAJAS4AEwASAS4AGwAxAS4AIwA6AS4AKwBjAS4AMwBjAS4AOwBjAS4AQwA6AS4ASwBpAS4AUwBj
+AS4AWwCAAUMAYwDKAakAcwAxAckAcwAxAeEAewDKAeMAawDKARsAAwABAAcABQAIAAcAAADFAO4A
+AAC0A/IAAACPBPYAAADJA/IAAABJBfoAAABDAf8AAAD3BgQBAgAGAAMAAgAHAAUAAQAIAAcAAQAJ
+AAkAAgATAAsAAgAUAA0AAQAVAA0AAgAWAA8ABIAAAAEAAAAAAAAAAAAAAAAAZgAAAAQAAAAAAAAA
+AAAAAIwAqAAAAAAAEAAAAAAAAAAAAAAAlQAtBwAAAAAQAAAAAAAAAAAAAACVANUEAAAAABAAAAAA
+AAAAAAAAAJUASgcAAAAABAAAAAAAAAAAAAAAjAD7AwAAAAAQAAAAAAAAAAAAAACVAPgEAAAAAAAA
+AAABAAAAEQYAAAAAAAAASURUU0NvbXBvbmVudE1ldGFEYXRhMTAwAElEVFNWYXJpYWJsZTEwMABJ
+RFRTVmFyaWFibGVEaXNwZW5zZXIxMDAASURUU1ZhcmlhYmxlczEwMABHZXRJbnQzMgA8TW9kdWxl
+PgBTQ19FMjMzNTc3RkE1MDc0RDNEQTdEQjc4Q0QxNTVDMUY2QgBJbnB1dElEAGdldF9Db21wb25l
+bnRNZXRhRGF0YQBtc2NvcmxpYgBkZWZhdWx0SW5zdGFuY2UAZ2V0X0Vycm9yQ29kZQBSdW50aW1l
+VHlwZUhhbmRsZQBHZXRUeXBlRnJvbUhhbmRsZQBJbnB1dE5hbWUATWljcm9zb2Z0LlNxbFNlcnZl
+ci5EdHMuUGlwZWxpbmUAVHlwZQBnZXRfQ3VsdHVyZQBzZXRfQ3VsdHVyZQByZXNvdXJjZUN1bHR1
+cmUAQXBwbGljYXRpb25TZXR0aW5nc0Jhc2UARWRpdG9yQnJvd3NhYmxlU3RhdGUATG9ja0Zvcldy
+aXRlAENvbXBpbGVyR2VuZXJhdGVkQXR0cmlidXRlAERlYnVnZ2VyTm9uVXNlckNvZGVBdHRyaWJ1
+dGUARGVidWdnYWJsZUF0dHJpYnV0ZQBFZGl0b3JCcm93c2FibGVBdHRyaWJ1dGUAQXNzZW1ibHlU
+aXRsZUF0dHJpYnV0ZQBBc3NlbWJseVRyYWRlbWFya0F0dHJpYnV0ZQBUYXJnZXRGcmFtZXdvcmtB
+dHRyaWJ1dGUAQXNzZW1ibHlDb25maWd1cmF0aW9uQXR0cmlidXRlAEFzc2VtYmx5RGVzY3JpcHRp
+b25BdHRyaWJ1dGUAQ29tcGlsYXRpb25SZWxheGF0aW9uc0F0dHJpYnV0ZQBBc3NlbWJseVByb2R1
+Y3RBdHRyaWJ1dGUAQXNzZW1ibHlDb3B5cmlnaHRBdHRyaWJ1dGUAU1NJU1NjcmlwdENvbXBvbmVu
+dEVudHJ5UG9pbnRBdHRyaWJ1dGUAQXNzZW1ibHlDb21wYW55QXR0cmlidXRlAFJ1bnRpbWVDb21w
+YXRpYmlsaXR5QXR0cmlidXRlAFByZUV4ZWN1dGUAUG9zdEV4ZWN1dGUAc2V0X1ZhbHVlAHZhbHVl
+AFN5c3RlbS5SdW50aW1lLlZlcnNpb25pbmcAU3RyaW5nAFVubG9jawBTeXN0ZW0uQ29tcG9uZW50
+TW9kZWwAU0NfRTIzMzU3N0ZBNTA3NEQzREE3REI3OENEMTU1QzFGNkIuZGxsAGdldF9FcnJvckNv
+ZGVfSXNOdWxsAHNldF9FcnJvckRlc2NyaXB0aW9uX0lzTnVsbABTZXROdWxsAGdldF9JdGVtAHNl
+dF9JdGVtAFN5c3RlbQByZXNvdXJjZU1hbgBCb29sZWFuAFNjcmlwdE1haW4AU3lzdGVtLkNvbmZp
+Z3VyYXRpb24AU3lzdGVtLkdsb2JhbGl6YXRpb24AU3lzdGVtLlJlZmxlY3Rpb24ASW52YWxpZE9w
+ZXJhdGlvbkV4Y2VwdGlvbgBzZXRfRXJyb3JEZXNjcmlwdGlvbgBHZXRFcnJvckRlc2NyaXB0aW9u
+AFN0cmluZ0NvbXBhcmlzb24AQ3VsdHVyZUluZm8AT3V0cHV0TmFtZU1hcABPdXRwdXRNYXAATWlj
+cm9zb2Z0LlNxbFNlcnZlci5EVFNSdW50aW1lV3JhcABNaWNyb3NvZnQuU3FsU2VydmVyLkRUU1Bp
+cGVsaW5lV3JhcABJbnB1dDBCdWZmZXIAUGlwZWxpbmVCdWZmZXIAU2NyaXB0QnVmZmVyAGdldF9S
+ZXNvdXJjZU1hbmFnZXIATWljcm9zb2Z0LlNxbFNlcnZlci5EdHMuUnVudGltZS5XcmFwcGVyAE1p
+Y3Jvc29mdC5TcWxTZXJ2ZXIuRHRzLlBpcGVsaW5lLldyYXBwZXIAZ2V0X1ZhcmlhYmxlRGlzcGVu
+c2VyAC5jdG9yAC5jY3RvcgBTeXN0ZW0uRGlhZ25vc3RpY3MAU3lzdGVtLlJ1bnRpbWUuQ29tcGls
+ZXJTZXJ2aWNlcwBTeXN0ZW0uUmVzb3VyY2VzAFNDXzU0YTM4MDVmZWQ2OTRkYjI4MjI2ZGMxMmZm
+YWE1MmNjLlByb3BlcnRpZXMuUmVzb3VyY2VzLnJlc291cmNlcwBEZWJ1Z2dpbmdNb2RlcwBTQ181
+NGEzODA1ZmVkNjk0ZGIyODIyNmRjMTJmZmFhNTJjYy5Qcm9wZXJ0aWVzAEdldFZhcmlhYmxlcwBC
+dWZmZXJDb2x1bW5JbmRleGVzAEdldENvbHVtbkluZGV4ZXMAU2V0dGluZ3MARXF1YWxzAENvbm5l
+Y3Rpb25zAE9iamVjdABFbmRPZlJvd3NldABnZXRfRGVmYXVsdABVc2VyQ29tcG9uZW50AFBhcmVu
+dENvbXBvbmVudABTY3JpcHRDb21wb25lbnQATWljcm9zb2Z0LlNxbFNlcnZlci5UeFNjcmlwdABN
+aWNyb3NvZnQuU3FsU2VydmVyLlBpcGVsaW5lSG9zdABJbnB1dDBfUHJvY2Vzc0lucHV0AElucHV0
+MF9Qcm9jZXNzSW5wdXRSb3cATmV4dFJvdwBnZXRfQXNzZW1ibHkAAAAnVQBzAGUAcgA6ADoAaQBz
+AE8AcgBkAGUAcgBGAGEAaQBsAGUAZAAAgJtJAHMATgB1AGwAbAAgAHAAcgBvAHAAZQByAHQAeQAg
+AGMAYQBuAG4AbwB0ACAAYgBlACAAcwBlAHQAIAB0AG8AIABGAGEAbABzAGUALgAgAEEAcwBzAGkA
+ZwBuACAAYQAgAHYAYQBsAHUAZQAgAHQAbwAgAHQAaABlACAAYwBvAGwAdQBtAG4AIABpAG4AcwB0
+AGUAYQBkAC4AAA9JAG4AcAB1AHQAIAAwAABxUwBDAF8ANQA0AGEAMwA4ADAANQBmAGUAZAA2ADkA
+NABkAGIAMgA4ADIAMgA2AGQAYwAxADIAZgBmAGEAYQA1ADIAYwBjAC4AUAByAG8AcABlAHIAdABp
+AGUAcwAuAFIAZQBzAG8AdQByAGMAZQBzAACYCCdLXR6NR5HnYWQtvOhKAAQgAQEIAyAAAQUgAQER
+EQQgAQEOBSABARFdBAcBEjkEIAASbQQgAQ4IBCAAEnEGIAEBEBI5BSABEnkcBCABARwJIAMBEkEd
+CBJFAwYSQQMGHQgEIAEICAQgAQIIBSACAQgcAyAAAgcgAgIOEYCJBSABHQgICAABEoCNEYCRBSAA
+EoCVByACAQ4SgJUIt3pcVhk04IkIiYRdzYCAzJEDBhIUAwYSGAMGEkkDBhJVAwYSWQMGEiAFIAEB
+EgwDIAAIBCABAQIJIAQBCA4SQRJFBSABARJJBAAAElUEAAASWQUAAQESWQQAABIgAwAAAQMoAAgD
+KAACAygADgQIABJVBAgAElkECAASIAgBAAgAAAAAAB4BAAEAVAIWV3JhcE5vbkV4Y2VwdGlvblRo
+cm93cwEIAQACAAAAAAAoAQAjU0NfNTRhMzgwNWZlZDY5NGRiMjgyMjZkYzEyZmZhYTUyY2MAAAUB
+AAAAABYBABFDb3B5cmlnaHQgQCAgMjAyMwAASQEAGi5ORVRGcmFtZXdvcmssVmVyc2lvbj12NC43
+AQBUDhRGcmFtZXdvcmtEaXNwbGF5TmFtZRIuTkVUIEZyYW1ld29yayA0LjcEAQAAAAC0AAAAzsrv
+vgEAAACRAAAAbFN5c3RlbS5SZXNvdXJjZXMuUmVzb3VyY2VSZWFkZXIsIG1zY29ybGliLCBWZXJz
+aW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0
+ZTA4OSNTeXN0ZW0uUmVzb3VyY2VzLlJ1bnRpbWVSZXNvdXJjZVNldAIAAAAAAAAAAAAAAFBBRFBB
+RFC0AAAAADQAAAAAAAAAAAAAGjQAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAw0AAAAAAAAAAAA
+AAAAX0NvckRsbE1haW4AbXNjb3JlZS5kbGwAAAAAAP8lACAAEAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -3969,7 +3964,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAwAAACkNAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAwAAAAsNAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -4000,7 +3995,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
                   dataType="System.String"
                   description="Specifies a comma-separated list of read/write variables."
                   name="ReadWriteVariables"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ScriptUIWriteableVariablePickerDlg">User::isOrderFailed</property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ScriptUIWriteableVariablePickerDlg"></property>
                 <property
                   dataType="System.String"
                   description="List of breakpoints present on the script."
@@ -4014,7 +4009,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
                   dataType="System.String"
                   description="Checksum to match component metedata against compiled codes."
                   name="MetadataChecksum140"
-                  typeConverter="NOTBROWSABLE">36</property>
+                  typeConverter="NOTBROWSABLE">06</property>
                 <property
                   dataType="System.String"
                   name="UserComponentTypeName">Microsoft.ScriptComponentHost</property>
@@ -4619,14 +4614,14 @@ where [refTable].[CompanyName] = ?</property>
       </DTS:ObjectData>
     </DTS:Executable>
     <DTS:Executable
-      DTS:refId="Package\OrdersFilureCheck"
+      DTS:refId="Package\OrdersFailureCheck"
       DTS:CreationName="Microsoft.ScriptTask"
       DTS:Description="Script Task"
       DTS:DTSID="{3D58E9EE-677E-4B42-8332-524A52292914}"
       DTS:ExecutableType="Microsoft.ScriptTask"
       DTS:FailPackageOnFailure="True"
       DTS:LocaleID="-1"
-      DTS:ObjectName="OrdersFilureCheck"
+      DTS:ObjectName="OrdersFailureCheck"
       DTS:ThreadHint="0">
       <DTS:Variables />
       <DTS:ObjectData>
@@ -4636,6 +4631,15 @@ where [refTable].[CompanyName] = ?</property>
           VSTAMinorVersion="0"
           Language="CSharp"
           ReadOnlyVariables="User::isOrderFailed">
+          <ProjectItem
+            Name="Properties\Settings.settings"
+            Encoding="UTF8"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
+<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
+  <Profiles>
+    <Profile Name="(Default)" />
+  </Profiles>
+  <Settings />
+</SettingsFile>]]></ProjectItem>
           <ProjectItem
             Name="Properties\Resources.resx"
             Encoding="UTF8"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
@@ -4755,35 +4759,6 @@ where [refTable].[CompanyName] = ?</property>
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
 </root>]]></ProjectItem>
-          <ProjectItem
-            Name="Properties\Settings.Designer.cs"
-            Encoding="UTF8"><![CDATA[//------------------------------------------------------------------------------
-// <auto-generated>
-//     This code was generated by a tool.
-//
-//     Changes to this file may cause incorrect behavior and will be lost if
-//     the code is regenerated.
-// </auto-generated>
-//------------------------------------------------------------------------------
-
-[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="ST_3f7356369a1a49fe8a85e8669955377d.Properties.Settings.get_Default():ST_3f7356369a1a49fe8a85e8669955377d.Properties.Sett" +
-    "ings")]
-
-namespace ST_3f7356369a1a49fe8a85e8669955377d.Properties {
-    
-    
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
-        
-        [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-        private static Settings defaultInstance = new Settings();
-        
-        public static Settings Default {
-            get {
-                return defaultInstance;
-            }
-        }
-    }
-}]]></ProjectItem>
           <ProjectItem
             Name="ST_3f7356369a1a49fe8a85e8669955377d.csproj"
             Encoding="UTF8"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
@@ -5021,6 +4996,35 @@ namespace ST_3f7356369a1a49fe8a85e8669955377d
   </msb:ItemGroup>
 </c:Project>]]></ProjectItem>
           <ProjectItem
+            Name="Properties\Settings.Designer.cs"
+            Encoding="UTF8"><![CDATA[//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="ST_3f7356369a1a49fe8a85e8669955377d.Properties.Settings.get_Default():ST_3f7356369a1a49fe8a85e8669955377d.Properties.Sett" +
+    "ings")]
+
+namespace ST_3f7356369a1a49fe8a85e8669955377d.Properties {
+    
+    
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+        
+        [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+        private static Settings defaultInstance = new Settings();
+        
+        public static Settings Default {
+            get {
+                return defaultInstance;
+            }
+        }
+    }
+}]]></ProjectItem>
+          <ProjectItem
             Name="Properties\AssemblyInfo.cs"
             Encoding="UTF8"><![CDATA[using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -5050,15 +5054,6 @@ using System.Runtime.CompilerServices;
 // by using the '*' as shown below:
 
 [assembly: AssemblyVersion("1.0.*")]]]></ProjectItem>
-          <ProjectItem
-            Name="Properties\Settings.settings"
-            Encoding="UTF8"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
-</SettingsFile>]]></ProjectItem>
           <ProjectItem
             Name="Properties\Resources.Designer.cs"
             Encoding="UTF8"><![CDATA[//------------------------------------------------------------------------------
@@ -5248,7 +5243,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
       DTS:From="Package\GetOrders"
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint"
-      DTS:To="Package\OrdersFilureCheck" />
+      DTS:To="Package\OrdersFailureCheck" />
     <DTS:PrecedenceConstraint
       DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
       DTS:CreationName=""
@@ -5261,7 +5256,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
       DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
       DTS:CreationName=""
       DTS:DTSID="{A4F8B8D3-9A45-404B-8B96-F7DEC3BE42D8}"
-      DTS:From="Package\OrdersFilureCheck"
+      DTS:From="Package\OrdersFailureCheck"
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 2"
       DTS:To="Package\GetLastOrderId" />
@@ -5290,6 +5285,32 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
           Size="127.2,41.6"
           Id="Package\GetOrders"
           TopLeft="220.318499305219,27.6962959251291" />
+        <NodeLayout
+          Size="171.2,41.6"
+          Id="Package\OrdersFailureCheck"
+          TopLeft="200.499992251397,138.10000105381" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="285.009245778308,69.2962959251291">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,68.803705128681"
+              Start="0,0"
+              End="0,61.303705128681">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,61.303705128681" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 1]"
           TopLeft="283.675909249503,281.459261375297">
@@ -5312,46 +5333,20 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="165.6,41.6"
-          Id="Package\OrdersFilureCheck"
-          TopLeft="207.166658653154,143.300001095136" />
-        <EdgeLayout
-          Id="Package.PrecedenceConstraints[Constraint]"
-          TopLeft="286.942578979187,69.2962959251291">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,74.003705170007"
-              Start="0,0"
-              End="0,66.503705170007">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,66.503705170007" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 2]"
-          TopLeft="287.599988625448,184.900001095136">
+          TopLeft="285.666655424569,179.70000105381">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,54.9592602801609"
+              EndConnector="0,60.1592603214869"
               Start="0,0"
-              End="0,47.4592602801609">
+              End="0,52.6592603214869">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,47.4592602801609" />
+                    End="0,52.6592603214869" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
